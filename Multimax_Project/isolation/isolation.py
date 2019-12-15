@@ -37,66 +37,69 @@ class Board(object):
     BLANK = 0
     NOT_MOVED = None
 
-    def __init__(self, player_1, player_2, width=4, height=4):
+    def __init__(self, player_1, player_2, player_3, width=3, height=3):
         #print("test test test")
         self.width = width
         self.height = height
         self.move_count = 0
         self._player_1 = player_1
         self._player_2 = player_2
+        self._player_3 = player_3
         self._active_player = player_1
-        self._inactive_player = player_2
+        self._inactive_players = [player_2,player_3]
 
-        # The last 3 entries of the board state includes initiative (0 for
-        # player 1, 1 for player 2) player 2 last move, and player 1 last move
+        # The last 4 entries of the board state includes initiative (0 for
+        # player 1, 1 for player 2, 2 1 for player 3) player 1 last move, player 2 last move and player 3 last move
         self._board_state = [Board.BLANK] * (width * height + 3)
         self._board_state[-1] = Board.NOT_MOVED
         self._board_state[-2] = Board.NOT_MOVED
+        self._board_state[-3] = Board.NOT_MOVED
+
 
     def hash(self):
         return str(self._board_state).__hash__()
 
     @property
     def active_player(self):
-        """The object registered as the player holding initiative in the
+        """The object registered as the players list holding initiative in the
         current game state.
         """
         return self._active_player
 
     @property
-    def inactive_player(self):
+    def inactive_players(self):
         """The object registered as the player in waiting for the current
         game state.
         """
-        return self._inactive_player
+        return self._inactive_players
 
-    def get_opponent(self, player):
-        """Return the opponent of the supplied player.
+    # def get_opponent(self, player):
+    #     """Return the opponent of the supplied player.
 
-        Parameters
-        ----------
-        player : object
-            An object registered as a player in the current game. Raises an
-            error if the supplied object is not registered as a player in
-            this game.
+    #     Parameters
+    #     ----------
+    #     player : object
+    #         An object registered as a player in the current game. Raises an
+    #         error if the supplied object is not registered as a player in
+    #         this game.
 
-        Returns
-        -------
-        object
-            The opponent of the input player object.
-        """
-        if player == self._active_player:
-            return self._inactive_player
-        elif player == self._inactive_player:
-            return self._active_player
-        raise RuntimeError("`player` must be an object registered as a player in the current game.")
+    #     Returns
+    #     -------
+    #     object
+    #         The opponent of the input player object.
+    #     """
+    #     if player == self._active_player:
+    #         return self._inactive_player
+    #     elif player == self._inactive_player:
+    #         return self._active_player
+    #     raise RuntimeError("`player` must be an object registered as a player in the current game.")
 
     def copy(self):
         """ Return a deep copy of the current board. """
-        new_board = Board(self._player_1, self._player_2, width=self.width, height=self.height)
+        new_board = Board(self._player_1, self._player_2, self._player_3, width=self.width, height=self.height)
         new_board.move_count = self.move_count
         new_board._active_player = self._active_player
-        new_board._inactive_player = self._inactive_player
+        new_board._inactive_players = self._inactive_players
         new_board._board_state = copy(self._board_state)
         return new_board
 
@@ -158,13 +161,17 @@ class Board(object):
             if the player has not moved.
         """
         if player == self._player_1:
-            if self._board_state[-1] == Board.NOT_MOVED:
+            if self._board_state[-3] == Board.NOT_MOVED:
                 return Board.NOT_MOVED
-            idx = self._board_state[-1]
+            idx = self._board_state[-3]
         elif player == self._player_2:
             if self._board_state[-2] == Board.NOT_MOVED:
                 return Board.NOT_MOVED
             idx = self._board_state[-2]
+        elif player == self._player_3:
+            if self._board_state[-1] == Board.NOT_MOVED:
+                return Board.NOT_MOVED
+            idx = self._board_state[-1]
         else:
             raise RuntimeError(
                 "Invalid player in get_player_location: {}".format(player))
@@ -201,27 +208,44 @@ class Board(object):
             the active player on the board.
         """
         idx = move[0] + move[1] * self.height
-        last_move_idx = int(self.active_player == self._player_2) + 1
+
+        if self.active_player == self._player_1:
+            last_move_idx = 3
+        elif self.active_player == self._player_2:
+            last_move_idx = 2
+        else:
+            last_move_idx = 1
+
+
         self._board_state[-last_move_idx] = idx
         print "self._board_state1"
         print self._board_state;
 
-        self._board_state[-3] ^= 1
+        print "^^^^^^^^^^^^^^^^^^^^^^^^"
 
-        if self._board_state[-3] == 0:
+        print self._board_state[-4]
+
+        if self._board_state[-4] == 0:
+            self._board_state[-4] = 1
             self._board_state[idx] = 1
-        elif self._board_state[-3] == 1:
+        elif self._board_state[-4] == 1:
+            self._board_state[-4] = 2
             self._board_state[idx] = 2
+        else:
+            self._board_state[-4] = 0
+            self._board_state[idx] = 3
+
+
 
       
-        self._active_player, self._inactive_player = self._inactive_player, self._active_player
+        self._active_player, self._inactive_players = self._inactive_players[0], [self._inactive_players[1],self._active_player]
         self.move_count += 1
         print "self._board_state2"
         print self._board_state;
 
     def is_winner(self, player):
         """ Test whether the specified player has won the game. """
-        return player == self._inactive_player and not self.get_legal_moves(self._active_player)
+        return player in self._inactive_players and not self.get_legal_moves(self._active_player)
 
     def is_loser(self, player):
         """ Test whether the specified player has lost the game. """
@@ -278,13 +302,14 @@ class Board(object):
         """DEPRECATED - use Board.to_string()"""
         return self.to_string()
 
-    def to_string(self, symbols=['1', '2']):
+    def to_string(self, symbols=['1', '2','3']):
         """Generate a string representation of the current game state, marking
         the location of each player and indicating which cells have been
         blocked, and which remain open.
         """
         p1_loc = self._board_state[-1]
         p2_loc = self._board_state[-2]
+        p3_loc = self._board_state[-3]
 
         col_margin = len(str(self.height - 1)) + 1
         prefix = "{:<" + "{}".format(col_margin) + "}"
@@ -300,10 +325,14 @@ class Board(object):
                     out += symbols[0]
                 elif p2_loc == idx:
                     out += symbols[1]
+                elif p3_loc == idx:
+                    out += symbols[2]
                 elif self._board_state[idx] == 1:
                     out += 'O'
                 elif self._board_state[idx] == 2:
                     out += 'X'
+                elif self._board_state[idx] == 3:
+                    out += '+'
                 out += ' | '
             out += '\n\r'
 
@@ -321,7 +350,7 @@ class Board(object):
 
         Returns
         ----------
-        (player, list<[(int, int),]>, str)
+        ([player,player], list<[(int, int),]>, str)
             Return multiple including the winning player, the complete game
             move history, and a string indicating the reason for losing
             (e.g., timeout or invalid move).
@@ -344,12 +373,12 @@ class Board(object):
                 curr_move = Board.NOT_MOVED
 
             if move_end < 0:
-                return self._inactive_player, move_history, "timeout"
+                return self._inactive_players, move_history, "timeout"
 
             if curr_move not in legal_player_moves:
                 if len(legal_player_moves) > 0:
-                    return self._inactive_player, move_history, "forfeit"
-                return self._inactive_player, move_history, "illegal move"
+                    return self._inactive_players, move_history, "forfeit"
+                return self._inactive_players, move_history, "illegal move"
 
             move_history.append(list(curr_move))
 

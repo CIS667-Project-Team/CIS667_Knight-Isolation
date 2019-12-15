@@ -32,15 +32,15 @@ def null_score(game, player):
     """
 
     if game.is_loser(player):
-        return float("-inf")
+        return 1
 
     if game.is_winner(player):
-        return float("inf")
+        return +1
 
     return 0.
 
 
-def minmax(game, player):
+def multimax(game, player,iteration = 0):
     """The basic evaluation function described in lecture that outputs a score
     equal to the number of moves open for your computer player on the board.
 
@@ -64,17 +64,14 @@ def minmax(game, player):
     # print "######################"
 
 
-    if game.is_loser(player):
-        if isinstance(player,GreedyPlayer):
-            return -1, (-1,-1)
-        else:
-            return 1, (-1,-1)
+    iteration += iteration;
 
+    if game.is_loser(player):
+       return -1, (-1,-1)
+        
     if game.is_winner(player):
-        if isinstance(player,GreedyPlayer):
-            return 1, (-1,-1)
-        else:
-            return -1, (-1,-1)
+       return 1, (-1,-1)
+    
 
     print game.to_string()
 
@@ -86,18 +83,13 @@ def minmax(game, player):
 
     for i, move in enumerate(legal_moves):
         _game = game.forecast_move(move)
-        
-        if isinstance(player,GreedyPlayer):
-            if isinstance(game.active_player,GreedyPlayer):
-                _score, _move = minmax(_game,game.inactive_player) 
-            else:
-                _score, _move = minmax(_game,game.active_player) 
-            
-        else:
-            if isinstance(game.active_player,GreedyPlayer):
-                _score, _move = minmax(_game,game.active_player) 
-            else:
-                _score, _move = minmax(_game,game.inactive_player) 
+
+        if iteration%3 == 2:
+            _score, _move = multimax(_game,game.active_player,iteration)
+        elif iteration%3 == 0:
+            _score, _move = multimax(_game,game.inactive_players[0],iteration)
+        elif iteration%3 == 1:
+            _score, _move = multimax(_game,game.inactive_players[1],iteration)
 
         score_list.append(-_score)
         move_list.append(move)
@@ -120,43 +112,8 @@ def minmax(game, player):
     return score_list[best],move_list[best]
         
 
-   
 
-
-
-def improved_score(game, player):
-    """The "Improved" evaluation function discussed in lecture that outputs a
-    score equal to the difference in the number of moves available to the
-    two players.
-
-    Parameters
-    ----------
-    game : `isolation.Board`
-        An instance of `isolation.Board` encoding the current state of the
-        game (e.g., player locations and blocked cells).
-
-    player : hashable
-        One of the objects registered by the game object as a valid player.
-        (i.e., `player` should be either game.__player_1__ or
-        game.__player_2__).
-
-    Returns
-    ----------
-    float
-        The heuristic value of the current game state
-    """
-    if game.is_loser(player):
-        return float("-inf")
-
-    if game.is_winner(player):
-        return float("inf")
-
-    own_moves = len(game.get_legal_moves(player))
-    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    return float(own_moves - opp_moves)
-
-
-class RandomPlayer():
+class PlayerWithRandom():
     """Player that chooses a move randomly."""
 
     def get_move(self, game, time_left):
@@ -185,12 +142,12 @@ class RandomPlayer():
         return legal_moves[randint(0, len(legal_moves) - 1)]
 
 
-class GreedyPlayer():
+class PlayerWithAI():
     """Player that chooses next move to maximize heuristic score. This is
     equivalent to a minimax search agent with a search depth of one.
     """
 
-    def __init__(self, score_fn=minmax):
+    def __init__(self, score_fn=multimax):
         self.score = score_fn
 
     def get_move(self, game, time_left):
@@ -280,9 +237,10 @@ if __name__ == "__main__":
     from isolation import Board
 
     # create an isolation board (by default 7x7)
-    player1 = RandomPlayer()
-    player2 = GreedyPlayer()
-    game = Board(player1, player2)
+    player1 = PlayerWithAI()
+    player2 = PlayerWithRandom()
+    player3 = PlayerWithRandom()
+    game = Board(player1, player2, player3)
 
     # place player 1 on the board at row 2, column 3, then place player 2 on
     # the board at row 0, column 5; display the resulting board state.  Note
@@ -291,9 +249,6 @@ if __name__ == "__main__":
     # game.apply_move((0, 3))
     print(game.to_string())
 
-    # players take turns moving on the board, so player1 should be next to move
-    assert(player1 == game.active_player)
-
     # get a list of the legal moves available to the active player
     print(game.get_legal_moves())
 
@@ -301,13 +256,14 @@ if __name__ == "__main__":
     # applying a move. Notice that this does NOT change the calling object
     # (unlike .apply_move()).
     new_game = game.forecast_move((1, 1))
-    assert(new_game.to_string() != game.to_string())
+
     print("\nOld state:\n{}".format(game.to_string()))
     print("\nNew state:\n{}".format(new_game.to_string()))
 
     # play the remainder of the game automatically -- outcome can be "illegal
     # move", "timeout", or "forfeit"
-    winner, history, outcome = game.play()
-    print("\nWinner: {}\nOutcome: {}".format(winner, outcome))
+    winners, history, outcome = game.play()
+    print("\nWinner: {}\nOutcome: {}".format(winners[0], outcome))
+    print("\nWinner: {}\nOutcome: {}".format(winners[1], outcome))
     print(game.to_string())
     print("Move history:\n{!s}".format(history))
