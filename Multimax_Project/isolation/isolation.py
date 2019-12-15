@@ -307,10 +307,6 @@ class Board(object):
         random.shuffle(valid_moves)
         return valid_moves
 
-    def print_board(self):
-        """DEPRECATED - use Board.to_string()"""
-        return self.to_string()
-
     def get_player(self):
         return self._board_state[-4]
 

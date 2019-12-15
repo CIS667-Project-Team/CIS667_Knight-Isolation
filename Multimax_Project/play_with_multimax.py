@@ -77,7 +77,7 @@ def multimax(game, player,iteration = 0):
     #    return 1, (-1,-1)
     
 
-    print game.to_string()
+    # print game.to_string()
 
 
     legal_moves = game.get_legal_moves()
@@ -129,6 +129,7 @@ class PlayerWithRandom():
         legal_moves = game.get_legal_moves()
         if not legal_moves:
             return (-1, -1)
+        print game.to_string()
         return legal_moves[randint(0, len(legal_moves) - 1)]
 
 
@@ -167,6 +168,7 @@ class PlayerWithAI():
         #     return (-1, -1)
         # _, move = max([(self.score(game.forecast_move(m), self), m) for m in legal_moves])
         _, move =  self.score(game,self)
+        print game.to_string()
         return move
 
 
@@ -238,7 +240,7 @@ if __name__ == "__main__":
     game.apply_move((0, 0))
     game.apply_move((0, 1))
     game.apply_move((0, 2))
-    print(game.to_string())
+    # print(game.to_string())
 
     # get a list of the legal moves available to the active player
     print(game.get_legal_moves())
@@ -256,5 +258,5 @@ if __name__ == "__main__":
     winners, history, outcome = game.play()
     print("\nWinner: {}\nOutcome: {}".format(winners[0], outcome))
     print("\nWinner: {}\nOutcome: {}".format(winners[1], outcome))
-    print(game.to_string())
+    # print(game.to_string())
     print("Move history:\n{!s}".format(history))
