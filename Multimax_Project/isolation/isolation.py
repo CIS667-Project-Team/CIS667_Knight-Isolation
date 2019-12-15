@@ -9,6 +9,7 @@ be available to project reviewers.
 """
 import random
 import timeit
+import time
 from copy import copy
 
 TIME_LIMIT_MILLIS = 15000
@@ -37,7 +38,7 @@ class Board(object):
     BLANK = 0
     NOT_MOVED = None
 
-    def __init__(self, player_1, player_2, player_3, width=3, height=3):
+    def __init__(self, player_1, player_2, player_3, width=4, height=4):
         #print("test test test")
         self.width = width
         self.height = height
@@ -50,7 +51,7 @@ class Board(object):
 
         # The last 4 entries of the board state includes initiative (0 for
         # player 1, 1 for player 2, 2 1 for player 3) player 1 last move, player 2 last move and player 3 last move
-        self._board_state = [Board.BLANK] * (width * height + 3)
+        self._board_state = [Board.BLANK] * (width * height + 4)
         self._board_state[-1] = Board.NOT_MOVED
         self._board_state[-2] = Board.NOT_MOVED
         self._board_state[-3] = Board.NOT_MOVED
@@ -96,11 +97,16 @@ class Board(object):
 
     def copy(self):
         """ Return a deep copy of the current board. """
+        #print "self._board_state"
+        #print self._board_state;
+        # time.sleep(1)
         new_board = Board(self._player_1, self._player_2, self._player_3, width=self.width, height=self.height)
         new_board.move_count = self.move_count
         new_board._active_player = self._active_player
         new_board._inactive_players = self._inactive_players
         new_board._board_state = copy(self._board_state)
+        # print "self._board_state0"
+        # print self._board_state;
         return new_board
 
     def forecast_move(self, move):
@@ -207,6 +213,8 @@ class Board(object):
             A coordinate pair (row, column) indicating the next position for
             the active player on the board.
         """
+        # print "self._board_state-1"
+        # print self._board_state;
         idx = move[0] + move[1] * self.height
 
         if self.active_player == self._player_1:
@@ -218,12 +226,12 @@ class Board(object):
 
 
         self._board_state[-last_move_idx] = idx
-        print "self._board_state1"
-        print self._board_state;
+        # print "self._board_state1"
+        # print self._board_state;
 
-        print "^^^^^^^^^^^^^^^^^^^^^^^^"
+        # print "^^^^^^^^^^^^^^^^^^^^^^^^"
 
-        print self._board_state[-4]
+        # print self._board_state[-4]
 
         if self._board_state[-4] == 0:
             self._board_state[-4] = 1
@@ -239,17 +247,18 @@ class Board(object):
 
       
         self._active_player, self._inactive_players = self._inactive_players[0], [self._inactive_players[1],self._active_player]
+        # print  self._active_player, self._inactive_players 
         self.move_count += 1
-        print "self._board_state2"
-        print self._board_state;
+        # print "self._board_state2"
+        # print self._board_state;
 
-    def is_winner(self, player):
-        """ Test whether the specified player has won the game. """
-        return player in self._inactive_players and not self.get_legal_moves(self._active_player)
+    # def is_winner(self, player):
+    #     """ Test whether the specified player has won the game. """
+    #     return (player in self._inactive_players) and not self.get_legal_moves(self._active_player)
 
     def is_loser(self, player):
         """ Test whether the specified player has lost the game. """
-        return player == self._active_player and not self.get_legal_moves(self._active_player)
+        return not self.get_legal_moves(self._active_player)
 
     def utility(self, player):
         """Returns the utility of the current game state from the perspective
@@ -302,14 +311,21 @@ class Board(object):
         """DEPRECATED - use Board.to_string()"""
         return self.to_string()
 
+    def get_player(self):
+        return self._board_state[-4]
+
     def to_string(self, symbols=['1', '2','3']):
         """Generate a string representation of the current game state, marking
         the location of each player and indicating which cells have been
         blocked, and which remain open.
         """
-        p1_loc = self._board_state[-1]
+
+        # print "self._board_state4"
+        # print self._board_state;
+
+        p1_loc = self._board_state[-3]
         p2_loc = self._board_state[-2]
-        p3_loc = self._board_state[-3]
+        p3_loc = self._board_state[-1]
 
         col_margin = len(str(self.height - 1)) + 1
         prefix = "{:<" + "{}".format(col_margin) + "}"
@@ -360,6 +376,8 @@ class Board(object):
         time_millis = lambda: 1000 * timeit.default_timer()
 
         while True:
+
+   
 
             legal_player_moves = self.get_legal_moves()
             game_copy = self.copy()

@@ -64,13 +64,17 @@ def multimax(game, player,iteration = 0):
     # print "######################"
 
 
-    iteration += iteration;
+    iteration += 1;
+
 
     if game.is_loser(player):
-       return -1, (-1,-1)
+       _score_list = [+1,+1,+1]
+       _score_list[game.get_player()] = -2
+       # print "dddd"
+       return _score_list, (-1,-1)
         
-    if game.is_winner(player):
-       return 1, (-1,-1)
+    # if game.is_winner(player):
+    #    return 1, (-1,-1)
     
 
     print game.to_string()
@@ -79,37 +83,23 @@ def multimax(game, player,iteration = 0):
     legal_moves = game.get_legal_moves()
 
 
-    best,score_list, move_list = 0,[],[]
+    best,score_list,utility_list,move_list = 0,[],[],[]
 
     for i, move in enumerate(legal_moves):
         _game = game.forecast_move(move)
 
-        if iteration%3 == 2:
-            _score, _move = multimax(_game,game.active_player,iteration)
-        elif iteration%3 == 0:
-            _score, _move = multimax(_game,game.inactive_players[0],iteration)
-        elif iteration%3 == 1:
-            _score, _move = multimax(_game,game.inactive_players[1],iteration)
+        _slist, _move = multimax(_game,game.inactive_players[0],iteration)
 
-        score_list.append(-_score)
+        score_list.append(_slist[game.get_player()])
+        utility_list.append(_slist);
         move_list.append(move)
 
-    print "score_list_greedy"
-    print "score_list_rondom"
+        # print best,score_list,utility_list,move_list
 
 
     best = np.argmax(score_list) 
-    
 
-    print "######################"
-
-    print "score_list"
-
-    print score_list
-
-    print "######################"
-
-    return score_list[best],move_list[best]
+    return utility_list[best],move_list[best]
         
 
 
@@ -245,20 +235,21 @@ if __name__ == "__main__":
     # place player 1 on the board at row 2, column 3, then place player 2 on
     # the board at row 0, column 5; display the resulting board state.  Note
     # that the .apply_move() method changes the calling object in-place.
-    # game.apply_move((2, 3))
-    # game.apply_move((0, 3))
+    game.apply_move((0, 0))
+    game.apply_move((0, 1))
+    game.apply_move((0, 2))
     print(game.to_string())
 
     # get a list of the legal moves available to the active player
     print(game.get_legal_moves())
 
-    # get a successor of the current state by making a copy of the board and
-    # applying a move. Notice that this does NOT change the calling object
-    # (unlike .apply_move()).
-    new_game = game.forecast_move((1, 1))
+    # # get a successor of the current state by making a copy of the board and
+    # # applying a move. Notice that this does NOT change the calling object
+    # # (unlike .apply_move()).
+    # new_game = game.forecast_move((1, 1))
 
-    print("\nOld state:\n{}".format(game.to_string()))
-    print("\nNew state:\n{}".format(new_game.to_string()))
+    # print("\nOld state:\n{}".format(game.to_string()))
+    # print("\nNew state:\n{}".format(new_game.to_string()))
 
     # play the remainder of the game automatically -- outcome can be "illegal
     # move", "timeout", or "forfeit"
