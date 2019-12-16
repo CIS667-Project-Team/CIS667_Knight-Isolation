@@ -327,7 +327,7 @@ class Board(object):
         p2_loc = self._board_state[-2]
         p3_loc = self._board_state[-1]
 
-        print self._board_state,p1_loc,p2_loc,p3_loc
+        # print self._board_state,p1_loc,p2_loc,p3_loc
 
         col_margin = len(str(self.height - 1)) + 1
         prefix = "{:<" + "{}".format(col_margin) + "}"
@@ -375,7 +375,7 @@ class Board(object):
         """
         move_history = []
 
-        time_millis = lambda: 1000 * timeit.default_timer()
+        time_millis = lambda: 10000 * timeit.default_timer()
 
         while True:
 
