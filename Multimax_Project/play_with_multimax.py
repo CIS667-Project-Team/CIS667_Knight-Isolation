@@ -8,6 +8,7 @@ own agent and example heuristic functions.
 
 from random import randint
 import numpy as np
+import time
 
 
 def null_score(game, player):
@@ -77,7 +78,8 @@ def multimax(game, player,iteration = 0):
     #    return 1, (-1,-1)
     
 
-    # print game.to_string()
+    print game.to_string()
+    time.sleep(1)
 
 
     legal_moves = game.get_legal_moves()
