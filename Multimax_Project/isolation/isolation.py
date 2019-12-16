@@ -38,7 +38,7 @@ class Board(object):
     BLANK = 0
     NOT_MOVED = None
 
-    def __init__(self, player_1, player_2, player_3, width=4, height=4):
+    def __init__(self, player_1, player_2, player_3, width, height):
         #print("test test test")
         self.width = width
         self.height = height

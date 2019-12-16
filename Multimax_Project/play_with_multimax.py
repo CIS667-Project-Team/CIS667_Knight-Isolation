@@ -9,6 +9,8 @@ own agent and example heuristic functions.
 from random import randint
 import numpy as np
 import time
+import random
+import matplotlib.pyplot as plt
 
 
 def null_score(game, player):
@@ -78,8 +80,8 @@ def multimax(game, player,iteration = 0):
     #    return 1, (-1,-1)
     
 
-    print game.to_string()
-    time.sleep(1)
+    # print game.to_string()
+    # time.sleep(1)
 
 
     legal_moves = game.get_legal_moves()
@@ -131,7 +133,7 @@ class PlayerWithRandom():
         legal_moves = game.get_legal_moves()
         if not legal_moves:
             return (-1, -1)
-        print game.to_string()
+        # print game.to_string()
         return legal_moves[randint(0, len(legal_moves) - 1)]
 
 
@@ -171,7 +173,7 @@ class PlayerWithAI():
         # _, move = max([(self.score(game.forecast_move(m), self), m) for m in legal_moves])
         _, move =  self.score(game,self)
         # print game.board_state
-        print game.to_string()
+        #print game.to_string()
         return move
 
 
@@ -235,31 +237,82 @@ if __name__ == "__main__":
     player1 = PlayerWithAI()
     player2 = PlayerWithRandom()
     player3 = PlayerWithRandom()
-    game = Board(player1, player2, player3)
+    width = 4
+    height = 4
 
-    # place player 1 on the board at row 2, column 3, then place player 2 on
-    # the board at row 0, column 5; display the resulting board state.  Note
-    # that the .apply_move() method changes the calling object in-place.
-    game.apply_move((0, 0))
-    game.apply_move((0, 1))
-    game.apply_move((0, 2))
-    # print(game.to_string())
+    p1_wins = 0
+    p2_wins = 0
+    p3_wins = 0
 
-    # get a list of the legal moves available to the active player
-    print(game.get_legal_moves())
+    p1_win_arr = []
+    p2_win_arr = []
+    p3_win_arr = []
 
-    # # get a successor of the current state by making a copy of the board and
-    # # applying a move. Notice that this does NOT change the calling object
-    # # (unlike .apply_move()).
-    # new_game = game.forecast_move((1, 1))
 
-    # print("\nOld state:\n{}".format(game.to_string()))
-    # print("\nNew state:\n{}".format(new_game.to_string()))
 
-    # play the remainder of the game automatically -- outcome can be "illegal
-    # move", "timeout", or "forfeit"
-    winners, history, outcome = game.play()
-    print("\nWinner: {}\nOutcome: {}".format(winners[0], outcome))
-    print("\nWinner: {}\nOutcome: {}".format(winners[1], outcome))
-    # print(game.to_string())
-    print("Move history:\n{!s}".format(history))
+    game_num = 100
+
+    for i in range(game_num):
+        game = Board(player1, player2, player3,width,height)
+        m1, m2, m3 = random.sample(range(0, width*height), 3)
+
+
+        # place player 1 on the board at row 2, column 3, then place player 2 on
+        # the board at row 0, column 5; display the resulting board state.  Note
+        # that the .apply_move() method changes the calling object in-place.
+        game.apply_move((m1/width, m1%width))
+        game.apply_move((m2/width, m2%width))
+        game.apply_move((m3/width, m3%width))
+        # print(game.to_string())
+
+        # get a list of the legal moves available to the active player
+        print(game.get_legal_moves())
+
+        # # get a successor of the current state by making a copy of the board and
+        # # applying a move. Notice that this does NOT change the calling object
+        # # (unlike .apply_move()).
+        # new_game = game.forecast_move((1, 1))
+
+        # print("\nOld state:\n{}".format(game.to_string()))
+        # print("\nNew state:\n{}".format(new_game.to_string()))
+
+        # play the remainder of the game automatically -- outcome can be "illegal
+        # move", "timeout", or "forfeit"
+        winners, history, outcome = game.play()
+
+        print("\nWinner: {}\nOutcome: {}".format(winners[0], outcome))
+        print("\nWinner: {}\nOutcome: {}".format(winners[1], outcome))
+        # print(game.to_string())
+        print("Move history:\n{!s}".format(history))
+
+        if (id(winners[0]) == id(player1)) or (id(winners[1]) == id(player1)):
+            p1_wins += 1
+        
+        p1_win_arr.append(p1_wins)
+
+
+        if (id(winners[0]) == id(player2)) or (id(winners[1]) == id(player2)):
+            p2_wins += 1
+        
+        p2_win_arr.append(p2_wins)
+
+        if (id(winners[0]) == id(player3)) or (id(winners[1]) == id(player3)):
+            p3_wins += 1
+        
+        p3_win_arr.append(p3_wins)
+
+
+
+       
+    plt.plot(range(0,100), p1_win_arr, label="p1")
+    plt.plot(range(0,100), p2_win_arr, label="p2")
+    plt.plot(range(0,100), p3_win_arr, label="p3")
+
+    leg = plt.legend(loc='best', ncol=2, mode="expand", shadow=True, fancybox=True)
+    leg.get_frame().set_alpha(0.5)
+
+
+    plt.show()
+
+
+    print p1_wins,p2_wins,p3_wins
