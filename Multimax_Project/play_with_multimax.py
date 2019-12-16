@@ -168,6 +168,7 @@ class PlayerWithAI():
         #     return (-1, -1)
         # _, move = max([(self.score(game.forecast_move(m), self), m) for m in legal_moves])
         _, move =  self.score(game,self)
+        # print game.board_state
         print game.to_string()
         return move
 

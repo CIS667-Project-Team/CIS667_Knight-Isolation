@@ -61,6 +61,10 @@ class Board(object):
         return str(self._board_state).__hash__()
 
     @property
+    def board_state(self):
+        return self._board_state
+
+    @property
     def active_player(self):
         """The object registered as the players list holding initiative in the
         current game state.
@@ -317,11 +321,13 @@ class Board(object):
         """
 
         # print "self._board_state4"
-        # print self._board_state;
+        
 
         p1_loc = self._board_state[-3]
         p2_loc = self._board_state[-2]
         p3_loc = self._board_state[-1]
+
+        print self._board_state,p1_loc,p2_loc,p3_loc
 
         col_margin = len(str(self.height - 1)) + 1
         prefix = "{:<" + "{}".format(col_margin) + "}"
@@ -330,7 +336,7 @@ class Board(object):
         for i in range(self.height):
             out += prefix.format(i) + ' | '
             for j in range(self.width):
-                idx = i + j * self.height
+                idx = i * self.width + j 
                 if not self._board_state[idx]:
                     out += ' '
                 elif p1_loc == idx:
