@@ -7,6 +7,14 @@ You MAY use and modify this class, however ALL function signatures must
 remain compatible with the defaults provided, and none of your changes will
 be available to project reviewers.
 """
+
+'''
+This project is revised by the open source code https://github.com/dingran/knight-isolation.
+
+The author of modification is Lu Han lhan11@syr.edu
+
+'''
+
 import random
 import timeit
 import time
@@ -77,27 +85,6 @@ class Board(object):
         game state.
         """
         return self._inactive_players
-
-    # def get_opponent(self, player):
-    #     """Return the opponent of the supplied player.
-
-    #     Parameters
-    #     ----------
-    #     player : object
-    #         An object registered as a player in the current game. Raises an
-    #         error if the supplied object is not registered as a player in
-    #         this game.
-
-    #     Returns
-    #     -------
-    #     object
-    #         The opponent of the input player object.
-    #     """
-    #     if player == self._active_player:
-    #         return self._inactive_player
-    #     elif player == self._inactive_player:
-    #         return self._active_player
-    #     raise RuntimeError("`player` must be an object registered as a player in the current game.")
 
     def copy(self):
         """ Return a deep copy of the current board. """
@@ -228,14 +215,7 @@ class Board(object):
         else:
             last_move_idx = 1
 
-
         self._board_state[-last_move_idx] = idx
-        # print "self._board_state1"
-        # print self._board_state;
-
-        # print "^^^^^^^^^^^^^^^^^^^^^^^^"
-
-        # print self._board_state[-4]
 
         if self._board_state[-4] == 0:
             self._board_state[-4] = 1
@@ -264,37 +244,6 @@ class Board(object):
         """ Test whether the specified player has lost the game. """
         return not self.get_legal_moves(self._active_player)
 
-    def utility(self, player):
-        """Returns the utility of the current game state from the perspective
-        of the specified player.
-
-                    /  +infinity,   "player" wins
-        utility =  |   -infinity,   "player" loses
-                    \          0,    otherwise
-
-        Parameters
-        ----------
-        player : object (optional)
-            An object registered as a player in the current game. If None,
-            return the utility for the active player on the board.
-
-        Returns
-        ----------
-        float
-            The utility value of the current game state for the specified
-            player. The game has a utility of +inf if the player has won,
-            a value of -inf if the player has lost, and a value of 0
-            otherwise.
-        """
-        if not self.get_legal_moves(self._active_player):
-
-            if player == self._inactive_player:
-                return float("inf")
-
-            if player == self._active_player:
-                return float("-inf")
-
-        return 0.
 
     def __get_moves(self, loc):
         """Generate the list of possible moves for an L-shaped motion (like a
@@ -319,8 +268,6 @@ class Board(object):
         the location of each player and indicating which cells have been
         blocked, and which remain open.
         """
-
-        # print "self._board_state4"
         
 
         p1_loc = self._board_state[-3]

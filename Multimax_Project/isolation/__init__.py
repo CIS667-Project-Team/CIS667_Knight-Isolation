@@ -8,4 +8,12 @@ legal moves loses, and the opponent is declared the winner.
 """
 
 # Make the Board class available at the root of the module for imports
+
+'''
+This project is revised by the open source code https://github.com/dingran/knight-isolation.
+
+The author of modification is Lu Han lhan11@syr.edu
+
+'''
+
 from .isolation import Board
