@@ -10,4 +10,8 @@ Run Command: python3 play_with_multimax.py
 
 ## Q_Learning_Project:
 
+Run Command: python3 sample_players.py
+
+
+
 Reference: https://github.com/dingran/knight-isolation
